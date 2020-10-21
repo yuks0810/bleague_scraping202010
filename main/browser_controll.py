@@ -23,3 +23,6 @@ class BrowserControll:
             b1.click()
         else:
             b2.click()
+
+    def select_report(self, date):
+        

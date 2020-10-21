@@ -6,6 +6,15 @@ B league scraping with python, after the website update.
 Desktopなど使う場所にファイルをダウンロードする
 `git clone https://github.com/yuks0810/bleague_scraping202010.git`
 
+### 必要パッケージをインストール
+terminalで
+
+```bash
+$ pip install webdriver-manager
+```
+最新版はこのサイトを確認：
+https://pypi.org/project/webdriver-manager/
+
 ### Anaconda 仮想環境準備
 Anacondaなどでパッケージを使える環境を整える
 `./Bleague_scraping202010.yml`
@@ -44,3 +53,10 @@ $ リーグ, シーズン, 大会, クラブ, 節 の準で入力してくださ
 
 B2,2018-19,7,7,2
 ```
+## google spread sheet
+test spread sheet:
+https://docs.google.com/spreadsheets/d/1Jrj9EoSqUcD9L3q0JoDobzc-KO25lon9Aq_rV98EkPA/edit#gid=0
+
+### 秘密鍵
+bleague_scraping_g_spread_key.dmgというファイルに秘密情報が載っている
+
