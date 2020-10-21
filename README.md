@@ -14,7 +14,7 @@ Anacondaなどでパッケージを使える環境を整える
 ex)
 
 ```bash
-$ conda env create -n 新たな環境名 -f ファイル名.yml
+$ conda env create -n Bleague_scraping202010 -f Bleague_scraping202010.yml
 ```
 
 Anacondaの仮想環境をactivateする
