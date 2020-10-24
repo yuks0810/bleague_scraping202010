@@ -1,6 +1,7 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+import datetime
 
 class BrowserControll:
 
@@ -24,5 +25,18 @@ class BrowserControll:
         else:
             b2.click()
 
-    def select_report(self, date):
-        
+    def select_report(self, date=datetime.datetime.now()):
+        # レポートタグをクリックしてスクレイピングしたい対象のでテーブルをタブで開く
+        a_tags = self.driver.find_elements_by_xpath('//a[@rel="noopener" and @class="btn btn-rd"]') 
+        href_arry = []
+
+        for a_tag in a_tags:
+            # print(a_tag.get_attribute("href"))
+            href_arry.append(a_tag.get_attribute("href"))
+
+        href_count = len(href_arry)
+
+        for i, url in enumerate(href_arry):
+            self.driver.execute_script("window.open()") #make new tab
+            self.driver.switch_to.window(self.driver.window_handles[i+1]) #switch new tab
+            self.driver.get(url)
