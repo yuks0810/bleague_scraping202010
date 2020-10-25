@@ -45,12 +45,16 @@ class GameReportGSpread:
         theads = self.driver.find_elements_by_tag_name('thead')
         tbodies = self.driver.find_elements_by_tag_name('tbody')
 
+        # tbodiesだけ余計なtableがあるのでBOX SCOREのみを抽出するために削除
+        del tbodies[0:3]
+
         for idx, thead in enumerate(theads):
-            # if idx > 4:
             if idx == 0:
                 cell_list = self.ws.range(6, 1, 6, 26)
+                thead_row = 6
             else:
                 cell_list = self.ws.range(idx * 23, 1, idx * 23, 26)
+                thead_row = idx * 23
 
             ths = thead.find_element_by_tag_name('tr').find_elements_by_tag_name('th')
             for i, cell in enumerate(cell_list):
@@ -58,7 +62,7 @@ class GameReportGSpread:
                 cell.value = val
                 
             self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-            self.__write_tbody_contents(tbodies[idx])
+            self.__write_tbody_contents(tbodies[idx], thead_row)
         
 
     ## private 
@@ -74,16 +78,33 @@ class GameReportGSpread:
         worksheet = gc.open_by_key(SPREADSHEET_KEY).sheet1
         return worksheet
 
-    def __write_tbody_contents(self, tbody):
+    def __write_tbody_contents(self, tbody, thead_row):
         trs = tbody.find_elements_by_tag_name('tr')
+
+        # 各tableのtr要素の子要素であるtdの１行を配列に収める
+        # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
         for idx, tr in enumerate(trs):
+            tbody_cell_list = self.ws.range(thead_row + idx + 1, 1, thead_row + idx + 1, 27)
             tds = tr.find_elements_by_tag_name('td')
-            td_data = []
-            for td in tds:
-                tmp_td = []
-                tmp_td.append(td.get_attribute("textContent"))
-            td_data.append(tmp_td)
+            td_rows_data = []
+            one_row_data = self.__extract_tbody_one_row(tds)
+            td_rows_data.append(one_row_data)
+            
+            # １行ごとにgoole sheetのvlaueを更新していく処理
+            for i, cell in enumerate(tbody_cell_list):
+                cell.value = one_row_data[i]
+            self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
+
         
-        for td_d in td_data:
-            self.ws.append_row(td_d)
+        # 上記処理で１配列に収めた複数行のtableデータをそれぞれのcellに収める処理
+        # for cell, td_data in zip(tbody_cell_list, td_rows_data):
+        #     cell.value = td_data
+        # self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
+
+    def __extract_tbody_one_row(self, tds):
+        one_row_data = []
+        for each_cell_data in tds: 
+            cell_data = each_cell_data.get_attribute('textContent')
+            one_row_data.append(cell_data)
+        return one_row_data
 
