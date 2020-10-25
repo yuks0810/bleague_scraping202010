@@ -1,6 +1,18 @@
 # bleague_scraping202010
 B league scraping with python, after the website update. 
 
+対象ページ：
+https://www.bleague.jp/game_detail/?ScheduleKey=5934
+
+対象ページの「GAME REPORT」、「PLAY BY PLAY」、「BOX SCORE」タブにあるテーブルを検索条件などに応じてgoogle spread sheetに書き込みを行う。
+
+## 使用API
+### gspread: Google Spread Sheet操作API
+https://gspread.readthedocs.io/en/latest/
+
+### selenium（WebDriver API）: ブラウザ操作ライブラリ
+https://kurozumi.github.io/selenium-python/api.html
+
 ## 使い方
 ### cloneしてくる
 Desktopなど使う場所にファイルをダウンロードする
