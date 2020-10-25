@@ -1,13 +1,9 @@
 import time
 # import classes
-from browser_controll import BrowserControll
+from test_browser_controll import BrowserControll
 # selenium chrome driverの最新verをインストール
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-
-# g_spread
-from g_spread_sheet.game_report_g_spread import GameReportGSpread
 
 def set_params(inputs):
     league =         inputs[0]
@@ -32,28 +28,10 @@ print('updating chrome driver start')
 driver = webdriver.Chrome(ChromeDriverManager().install())
 print('updating chrome driver end')
 
-# Webページへアクセス
 driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))
-driver.implicitly_wait(15)
 # print('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))
 # time.sleep(3)
 
 brows = BrowserControll(driver, league, season, event, club, setuFrom)
 brows.select_report()
-
-game_report = GameReportGSpread(driver)
-game_report.get_game_teams()
-game_report.get_year()
-game_report.get_date_time()
-game_report.write_thead()
-
-# # テーブル内容取得
-# tableElem = driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table')
-# # trs = tableElem.find_elements(By.TAG_NAME, "tr")
-    
-# tds = tableElem.find_elements_by_tag_name('td')
-# for td in tds:
-#     # import pdb; pdb.set_trace()
-#     print(td.get_attribute("textContent"))
-
-
+brows.printer('//*[@id="game__boxscore__inner"]/ul[2]/li[2]/div[2]/table')

@@ -6,7 +6,6 @@ import datetime
 class BrowserControll:
 
     def __init__(self, driver, league, season, event, club, setuFrom):
-        super().__init__()
         print("start CrowserControll class")
         self.driver = driver
         self.league = league
@@ -43,3 +42,7 @@ class BrowserControll:
             self.driver.get(url)
             if i > 2:
                 break
+            
+    def printer(self, xpath_elm):
+        self.driver.find_element_by_xpath(xpath_elm)
+        print()

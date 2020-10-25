@@ -13,7 +13,7 @@ def connect_gspread(jsonf,key):
 
 # ここでjsonfile名と2-2で用意したkeyを入力
 jsonf = "dynamic-density-293202-cfdad7f5ab26.json"
-spread_sheet_key = "1Jrj9EoSqUcD9L3q0JoDobzc-KO25lon9Aq_rV98EkPA"
+spread_sheet_key = "1LiqrYZy14As1a7JY0Lp2RtDGp3LHQiQ7V-T6OoFp8Dg"
 ws = connect_gspread(jsonf,spread_sheet_key)
 
 #(2) Google Spread Sheets上の値を更新
