@@ -39,13 +39,19 @@ driver.implicitly_wait(15)
 # time.sleep(3)
 
 brows = BrowserControll(driver, league, season, event, club, setuFrom)
-brows.select_report()
+# brows.select_report()
+href_arry, href_count = brows.create_report_href_arry()
 
-game_report = GameReportGSpread(driver)
-game_report.get_game_teams()
-game_report.get_year()
-game_report.get_date_time()
-game_report.write_thead()
+for i, url in enumerate(href_arry):
+    driver.execute_script("window.open()") # make a new tab
+    driver.switch_to.window(driver.window_handles[i+1]) #switch new tab
+    driver.get(url)
+    
+    game_report = GameReportGSpread(driver)
+    game_report.get_game_teams()
+    game_report.get_year()
+    game_report.get_date_time()
+    game_report.write_table()
 
 # # テーブル内容取得
 # tableElem = driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table')

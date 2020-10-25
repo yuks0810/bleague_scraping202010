@@ -43,3 +43,15 @@ class BrowserControll:
             self.driver.get(url)
             if i > 2:
                 break
+
+    def create_report_href_arry(self):
+        a_tags = self.driver.find_elements_by_xpath('//a[@rel="noopener" and @class="btn btn-rd"]') 
+        href_arry = []
+
+        for a_tag in a_tags:
+            # print(a_tag.get_attribute("href"))
+            href_arry.append(a_tag.get_attribute("href"))
+
+        href_count = len(href_arry)
+
+        return href_arry, href_count

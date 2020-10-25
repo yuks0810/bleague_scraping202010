@@ -1,3 +1,4 @@
+import time
 class GameReportGSpread:
 
     def __init__(self, driver):
@@ -38,7 +39,7 @@ class GameReportGSpread:
 
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
     
-    def write_thead(self):
+    def write_table(self):
         # theads = []
         # theads.append(self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table/thead'))
         # theads.append(self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[2]/table/thead'))
@@ -50,11 +51,11 @@ class GameReportGSpread:
 
         for idx, thead in enumerate(theads):
             if idx == 0:
-                cell_list = self.ws.range(6, 1, 6, 26)
+                cell_list = self.ws.range(6, 1, 6, 27)
                 thead_row = 6
             else:
-                cell_list = self.ws.range(idx * 23, 1, idx * 23, 26)
-                thead_row = idx * 23
+                cell_list = self.ws.range(idx * 20, 1, idx * 20, 27)
+                thead_row = idx * 20
 
             ths = thead.find_element_by_tag_name('tr').find_elements_by_tag_name('th')
             for i, cell in enumerate(cell_list):
@@ -63,11 +64,12 @@ class GameReportGSpread:
                 
             self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
             self.__write_tbody_contents(tbodies[idx], thead_row)
+            time.sleep(10)
         
 
     ## private 
 
-    def __connect_gspread(self, jsonf,key):
+    def __connect_gspread(self, jsonf, key):
         import gspread
         from oauth2client.service_account import ServiceAccountCredentials
 
@@ -75,7 +77,20 @@ class GameReportGSpread:
         credentials = ServiceAccountCredentials.from_json_keyfile_name(jsonf, scope)
         gc = gspread.authorize(credentials)
         SPREADSHEET_KEY = key
-        worksheet = gc.open_by_key(SPREADSHEET_KEY).sheet1
+        workbook = gc.open_by_key(SPREADSHEET_KEY)
+
+        year = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[1]/p[1]').get_attribute('textContent')
+        month = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[1]/p[2]/span').get_attribute('textContent')
+        week = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[1]/p[3]/span[1]').get_attribute('textContent')
+        time = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[1]/p[4]').get_attribute('textContent')
+        date_time = f'{month}_{week}_{time}'
+
+        home_team = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[2]/div[1]/div[1]/p[1]').get_attribute('textContent')
+        away_team = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[2]/div[3]/div[1]/p[1]').get_attribute('textContent')
+
+        title = f'{year}_{date_time}_{home_team}vs.{away_team}'
+
+        worksheet = workbook.add_worksheet(title=title, rows=1000, cols=40)
         return worksheet
 
     def __write_tbody_contents(self, tbody, thead_row):
@@ -107,4 +122,3 @@ class GameReportGSpread:
             cell_data = each_cell_data.get_attribute('textContent')
             one_row_data.append(cell_data)
         return one_row_data
-
