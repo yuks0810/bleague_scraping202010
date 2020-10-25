@@ -53,6 +53,8 @@ for i, url in enumerate(href_arry):
     game_report.get_date_time()
     game_report.write_table()
 
+print('処理が正常に終了しました')
+
 # # テーブル内容取得
 # tableElem = driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table')
 # # trs = tableElem.find_elements(By.TAG_NAME, "tr")
