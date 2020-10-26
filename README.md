@@ -65,6 +65,9 @@ $ リーグ, シーズン, 大会, クラブ, 節 の準で入力してくださ
 
 B2,2018-19,7,7,2
 ```
+## 対象のgoogle spread sheetを変更する際のキーの見方
+https://imgur.com/ysN2TBP
+
 ## google spread sheet
 test spread sheet:
 https://docs.google.com/spreadsheets/d/1Jrj9EoSqUcD9L3q0JoDobzc-KO25lon9Aq_rV98EkPA/edit#gid=0
