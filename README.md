@@ -68,6 +68,9 @@ B2,2018-19,7,7,2
 ## 対象のgoogle spread sheetを変更する際のキーの見方
 ![スクリーンショット 2020-10-25 17 51 33](https://user-images.githubusercontent.com/49354810/97122983-d4430180-176c-11eb-95fd-1451cdaf683e.png)
 
+## スクレイピング結果を出力したいスプレッドシートに共有に下記メールアドレスを追加
+`bleague-scraping202010@dynamic-density-293202.iam.gserviceaccount.com`
+
 ## google spread sheet
 test spread sheet:
 https://docs.google.com/spreadsheets/d/1Jrj9EoSqUcD9L3q0JoDobzc-KO25lon9Aq_rV98EkPA/edit#gid=0
