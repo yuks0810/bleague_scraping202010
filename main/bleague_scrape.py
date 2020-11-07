@@ -6,6 +6,7 @@ from browser_controll import BrowserControll
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options # オプションを使うために必要
 
 # g_spread
 from g_spread_sheet.game_report_g_spread import GameReportGSpread
@@ -36,7 +37,13 @@ if inputs[0].lower() == "delete":
 
 
 print('updating chrome driver start')
-driver = webdriver.Chrome(ChromeDriverManager().install())
+option = Options()                          # オプションを用意
+option.add_argument('--headless')           # ヘッドレスモードの設定を付与 
+
+# ヘッドレスで実行するとき
+driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
+# ブラウザを表示するとき
+# driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 print('updating chrome driver end')
 
 
