@@ -1,4 +1,5 @@
 import time
+import sys
 # import classes
 from browser_controll import BrowserControll
 # selenium chrome driverの最新verをインストール
@@ -10,7 +11,7 @@ from selenium.webdriver.common.by import By
 from g_spread_sheet.game_report_g_spread import GameReportGSpread
 
 def set_params(inputs):
-    league =         inputs[0]
+    league = inputs[0]
     if league == "B1":
         league = 1
     else:
@@ -24,13 +25,23 @@ def set_params(inputs):
 
 
 print("リーグ, シーズン, 大会, クラブ, 節 の準で入力してください。ex) B2,2018-19,7,7,2 \n大会を数字で入力してください。ex) 7:B2リーグ, 5:オールスターゲーム, 9:B2残留プレーオフ, 8:B2プレーオフ, 11:B1・B2入替戦, 17:B2・B3入替戦, 20:アーリーカップ")
+print("シートを削除したい場合は delete と入力してください。")
 inputs = input().split(",")
-league, season, event, club, setuFrom = set_params(inputs)
+
+if inputs[0].lower() == "delete":
+    game_report_for_delete = GameReportGSpread(delete=True)
+    workbook = game_report_for_delete.connect_workbook()
+    game_report_for_delete.delete_all_sheets(workbook)
+    sys.exit()
 
 
 print('updating chrome driver start')
 driver = webdriver.Chrome(ChromeDriverManager().install())
 print('updating chrome driver end')
+
+
+
+league, season, event, club, setuFrom = set_params(inputs)
 
 # Webページへアクセス
 driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))

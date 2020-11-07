@@ -16,15 +16,15 @@ class BrowserControll:
         self.setuFrom = setuFrom
 
 
-    def select_B1_B2(self):
-        b1 = self.driver.find_element_by_xpath('//input[@id="tab1" and @name="tab" and @type="radio"]')
-        b2 = self.driver.find_element_by_xpath('//input[@id="tab2" and @name="tab" and @type="radio"]')
+    # def select_B1_B2(self):
+    #     b1 = self.driver.find_element_by_xpath('//input[@id="tab1" and @name="tab" and @type="radio"]')
+    #     b2 = self.driver.find_element_by_xpath('//input[@id="tab2" and @name="tab" and @type="radio"]')
 
-        print("B", self.league, "を選択します")
-        if target == "B1":
-            b1.click()
-        else:
-            b2.click()
+    #     print("B", self.league, "を選択します")
+    #     if target == "B1":
+    #         b1.click()
+    #     else:
+    #         b2.click()
 
     def select_report(self, date=datetime.datetime.now()):
         # レポートタグをクリックしてスクレイピングしたい対象のでテーブルをタブで開く
@@ -45,13 +45,23 @@ class BrowserControll:
                 break
 
     def create_report_href_arry(self):
-        a_tags = self.driver.find_elements_by_xpath('//a[@rel="noopener" and @class="btn btn-rd"]') 
         href_arry = []
+
+        # B1が選択されていたら何もしない。B2が選択されている時のみB2タグをクリックする
+        # B1はデフォルトでactiveなのでクリックする必要はない
+        if self.league == 2:
+            b2_tab = self.driver.find_element_by_xpath('//*[@id="lp-schedule"]/div[1]/ol/li[2]')
+            b2_tab.click()
+
+        active_tab_data_round_def = self.driver.find_element_by_css_selector('.round__def.active')
+
+        # active要素のa_tagのhtrefのみを取得
+        # B1 or B2どちらかアクティブな方を取得してくる
+        a_tags = active_tab_data_round_def.find_elements_by_tag_name('a') 
 
         for a_tag in a_tags:
             # print(a_tag.get_attribute("href"))
             href_arry.append(a_tag.get_attribute("href"))
-
         href_count = len(href_arry)
 
         return href_arry, href_count
