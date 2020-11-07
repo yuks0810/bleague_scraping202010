@@ -29,6 +29,17 @@ print("リーグ, シーズン, 大会, クラブ, 節 の準で入力してく�
 print("シートを削除したい場合は delete と入力してください。")
 inputs = input().split(",")
 
+if not len(inputs) == 5:
+    if not inputs[0] == "delete":
+        print("有効な値を入力してください")
+        sys.exit()
+
+second_input = inputs[1].split("-")
+if not len(second_input[0]) == 4 or not len(second_input[1]) == 2:
+    print("有効な値を入力してください（シーズン）")
+    print("シーズンの項目は2019-19のようにハイフンで区切り、4桁と2桁の数字を使ってください")
+    sys.exit()
+
 if inputs[0].lower() == "delete":
     game_report_for_delete = GameReportGSpread(delete=True)
     workbook = game_report_for_delete.connect_workbook()

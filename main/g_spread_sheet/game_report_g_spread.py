@@ -174,6 +174,16 @@ class GameReportGSpread:
         # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
         for idx, tr in enumerate(trs):
             tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
+            none_empty_cells = []
+
+            for cell in tbody_cell_list:
+                if not cell.value == '':
+                    none_empty_cells.append(cell)
+            
+            if len(none_empty_cells) > 0:
+                idx += 1
+                tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
+
             tds = tr.find_elements_by_tag_name('td')
             td_rows_data = []
             one_row_data = self.__extract_tbody_one_row(tds, tfoot=True)
@@ -182,3 +192,19 @@ class GameReportGSpread:
             for i, cell in enumerate(tbody_cell_list):
                 cell.value = one_row_data[i]
             self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
+
+    def line_count_checker_for_insurance(self, tbody_cell_list, thead_row, tbodies_row_count, idx):
+        # 結果と選手の行が重なってしまう場合を考慮
+        none_empty_cells = []
+        for cell in tbody_cell_list:
+            if not cell.value == '':
+                none_empty_cells.append(cell)
+        
+        if len(none_empty_cells) > 0:
+            idx += 1
+            tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
+            self.line_count_checker_for_insurance(tbody_cell_list, thead_row, tbodies_row_count, idx)
+        else:
+            return tbody_cell_list
+        
+        
