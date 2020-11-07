@@ -57,7 +57,7 @@ class BrowserControll:
 
         # active要素のa_tagのhtrefのみを取得
         # B1 or B2どちらかアクティブな方を取得してくる
-        a_tags = active_tab_data_round_def.find_elements_by_tag_name('a') 
+        a_tags = active_tab_data_round_def.find_elements_by_css_selector('.btn.btn-rd')
 
         for a_tag in a_tags:
             # print(a_tag.get_attribute("href"))

@@ -44,11 +44,9 @@ class GameReportGSpread:
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
     
     def write_table(self):
-        # theads = []
-        # theads.append(self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table/thead'))
-        # theads.append(self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[2]/table/thead'))
         theads = self.driver.find_elements_by_tag_name('thead')
         tbodies = self.driver.find_elements_by_tag_name('tbody')
+        tfoots = self.driver.find_elements_by_tag_name('tfoot')
 
         # tbodiesだけ余計なtableがあるのでBOX SCOREのみを抽出するために削除
         del tbodies[0:3]
@@ -68,6 +66,8 @@ class GameReportGSpread:
                 
             self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
             self.__write_tbody_contents(tbodies[idx], thead_row)
+            time.sleep(2)
+            self.__write_tfoot_contents(tfoots[idx], len(tbodies) , thead_row)
             time.sleep(10)
 
     def delete_all_sheets(self, workbook):
@@ -122,6 +122,7 @@ class GameReportGSpread:
         # 各tableのtr要素の子要素であるtdの１行を配列に収める
         # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
         for idx, tr in enumerate(trs):
+            ## theadのすぐしたからtableのコンテンツを開始するために+1している。
             tbody_cell_list = self.ws.range(thead_row + idx + 1, 1, thead_row + idx + 1, 27)
             tds = tr.find_elements_by_tag_name('td')
             td_rows_data = []
@@ -134,12 +135,15 @@ class GameReportGSpread:
             self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
 
         # 上記処理で１配列に収めた複数行のtableデータをそれぞれのcellに収める処理
-        # for cell, td_data in zip(tbody_cell_list, td_rows_data):
-        #     cell.value = td_data
-        # self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
 
-    def __extract_tbody_one_row(self, tds):
+    def __extract_tbody_one_row(self, tds, tfoot=False):
         one_row_data = []
+
+        if tfoot == True:
+            for idx, each_cell_data in enumerate(tds):
+                cell_data = each_cell_data.get_attribute('textContent')
+                one_row_data.append(cell_data)
+            return one_row_data
 
         if '・' in tds[2].get_attribute('textContent'):
             # 外人選手の場合    
@@ -162,3 +166,19 @@ class GameReportGSpread:
                 cell_data = each_cell_data.get_attribute('textContent')
             one_row_data.append(cell_data)
         return one_row_data
+
+    def __write_tfoot_contents(self, tfoot, tbodies_row_count, thead_row):
+        trs = tfoot.find_elements_by_tag_name('tr')
+
+        # 各tableのtr要素の子要素であるtdの１行を配列に収める
+        # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
+        for idx, tr in enumerate(trs):
+            tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
+            tds = tr.find_elements_by_tag_name('td')
+            td_rows_data = []
+            one_row_data = self.__extract_tbody_one_row(tds, tfoot=True)
+            td_rows_data.append(one_row_data)
+            # １行ごとにgoole sheetのvlaueを更新していく処理
+            for i, cell in enumerate(tbody_cell_list):
+                cell.value = one_row_data[i]
+            self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
