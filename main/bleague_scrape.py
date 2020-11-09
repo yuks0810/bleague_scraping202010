@@ -34,11 +34,12 @@ if not len(inputs) == 5:
         print("有効な値を入力してください")
         sys.exit()
 
-second_input = inputs[1].split("-")
-if not len(second_input[0]) == 4 or not len(second_input[1]) == 2:
-    print("有効な値を入力してください（シーズン）")
-    print("シーズンの項目は2019-19のようにハイフンで区切り、4桁と2桁の数字を使ってください")
-    sys.exit()
+if not inputs[0] == "delete":
+    second_input = inputs[1].split("-")
+    if not len(second_input[0]) == 4 or not len(second_input[1]) == 2:
+        print("有効な値を入力してください（シーズン）")
+        print("シーズンの項目は2019-19のようにハイフンで区切り、4桁と2桁の数字を使ってください")
+        sys.exit()
 
 if inputs[0].lower() == "delete":
     game_report_for_delete = GameReportGSpread(delete=True)
@@ -54,7 +55,7 @@ option.add_argument('--headless')           # ヘッドレスモードの設定�
 # ヘッドレスで実行するとき
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 # ブラウザを表示するとき
-# driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
+# driver = webdriver.Chrome(ChromeDriverManager().install())
 print('updating chrome driver end')
 
 
