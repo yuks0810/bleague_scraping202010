@@ -1,7 +1,6 @@
 import time
 class GameReportGSpread:
-
-    def __init__(self, driver=None, delete=False):
+    def __init__(self, driver=None, url=None, delete=False):
         super().__init__()
         import json
 
@@ -16,6 +15,10 @@ class GameReportGSpread:
             # カラムの数が40個なければ作成する
             col_num = self.ws.col_count
             self.ws.add_cols(40 - col_num)
+
+    def get_game_url(self):
+        self.ws.update_acell('C1', "対象ページURL")
+        self.ws.update_acell('C2', self.url)
 
     def get_game_teams(self):
         venue_name = self.driver.find_element_by_xpath('//*[@id="game__top__inner"]/div[3]/p[1]')
@@ -42,40 +45,13 @@ class GameReportGSpread:
             cell.value = val
 
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-    
-    def write_table(self):
-        theads = self.driver.find_elements_by_tag_name('thead')
-        tbodies = self.driver.find_elements_by_tag_name('tbody')
-        tfoots = self.driver.find_elements_by_tag_name('tfoot')
-
-        # tbodiesだけ余計なtableがあるのでBOX SCOREのみを抽出するために削除
-        del tbodies[0:3]
-
-        for idx, thead in enumerate(theads):
-            if idx == 0:
-                cell_list = self.ws.range(6, 1, 6, 27)
-                thead_row = 6
-            else:
-                cell_list = self.ws.range(idx * 24, 1, idx * 24, 27)
-                thead_row = idx * 24
-
-            ths = thead.find_element_by_tag_name('tr').find_elements_by_tag_name('th')
-            for i, cell in enumerate(cell_list):
-                val = ths[i].get_attribute("textContent")
-                cell.value = val
-                
-            self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-            self.__write_tbody_contents(tbodies[idx], thead_row)
-            time.sleep(2)
-            self.__write_tfoot_contents(tfoots[idx], len(tbodies) , thead_row)
-            time.sleep(10)
 
     def delete_all_sheets(self, workbook):
-        idx = 0
-        for ws in workbook.worksheets():
-            idx += 1
-            if idx > 1:
-                workbook.del_worksheet(ws)
+            idx = 0
+            for ws in workbook.worksheets():
+                idx += 1
+                if idx > 1:
+                    workbook.del_worksheet(ws)
 
     def connect_workbook(self):
         import gspread
@@ -87,8 +63,14 @@ class GameReportGSpread:
         SPREADSHEET_KEY = self.spread_sheet_key
         workbook = gc.open_by_key(SPREADSHEET_KEY)
         return workbook
+    
+    def write_table(self):
+        self.__write_team_names_on_top_of_table()
+        self.__get_table_data()
+        self.__get_table_footer_date()
 
-    ## private 
+
+    ####### private #######
 
     def __connect_gspread(self, jsonf, key):
         import gspread
@@ -116,95 +98,73 @@ class GameReportGSpread:
         worksheet = workbook.add_worksheet(title=title, rows=1000, cols=40)
         return worksheet
 
-    def __write_tbody_contents(self, tbody, thead_row):
-        trs = tbody.find_elements_by_tag_name('tr')
+    def __cellsTo1DArry(self, cells_arry):
+        cells1d = []
+        for cells in cells_arry:
+            cells1d.extend(cells)
+        return cells1d
 
-        # 各tableのtr要素の子要素であるtdの１行を配列に収める
-        # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
-        for idx, tr in enumerate(trs):
-            ## theadのすぐしたからtableのコンテンツを開始するために+1している。
-            tbody_cell_list = self.ws.range(thead_row + idx + 1, 1, thead_row + idx + 1, 27)
+    def __write_team_names_on_top_of_table(self):
+        home_team = self.driver.find_element_by_css_selector('.team_wrap.home').get_attribute('textContent').replace('\n', '').replace(' ', '')
+        away_team = self.driver.find_element_by_css_selector('.team_wrap.away').get_attribute('textContent').replace('\n', '').replace(' ', '')
+
+        self.ws.update_acell('B9', home_team)
+        self.ws.update_acell('F9', away_team)
+        time.sleep(2)
+
+    def __get_table_data(self):
+        table = self.driver.find_element_by_id("highlight_data")
+        trs = table.find_elements_by_tag_name('tr')
+        trs_count = len(trs)
+        first_row = 10
+        cell_list = self.ws.range(f'B{first_row}'+ ":" + f'F{first_row + trs_count}')
+
+        update_cell_arry = []
+        for tr in trs:
             tds = tr.find_elements_by_tag_name('td')
-            td_rows_data = []
-            one_row_data = self.__extract_tbody_one_row(tds)
-            td_rows_data.append(one_row_data)
-            
-            # １行ごとにgoole sheetのvlaueを更新していく処理
-            for i, cell in enumerate(tbody_cell_list):
-                cell.value = one_row_data[i]
-            self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
+            home_team_point = tds[0].get_attribute('textContent')
+            away_team_point = tds[2].get_attribute('textContent')
 
-        # 上記処理で１配列に収めた複数行のtableデータをそれぞれのcellに収める処理
-
-    def __extract_tbody_one_row(self, tds, tfoot=False):
-        one_row_data = []
-
-        if tfoot == True:
-            for idx, each_cell_data in enumerate(tds):
-                cell_data = each_cell_data.get_attribute('textContent')
-                one_row_data.append(cell_data)
-            return one_row_data
-
-        if '・' in tds[2].get_attribute('textContent'):
-            # 外人選手の場合    
-            # 海外選手のファミリーネームが2重になっているので削除
-            name_data = tds[2].get_attribute('textContent')
-            delete_word_count = len(name_data.split('・')[1])/2
-            last_word = len(name_data) - delete_word_count
-            name = name_data[0:int(last_word)]
-        else:
-            # 日本人選手の場合
-            name_data = tds[2].get_attribute('textContent')
-            delete_word_count = len(name_data.split(' ')[0])
-            last_word = len(name_data) - delete_word_count
-            name = name_data[0:int(last_word)]
-
-        for idx, each_cell_data in enumerate(tds):
-            if idx == 2:
-                cell_data = name
+            # 勝った方に矢印を設定する。
+            if "win" in tds[0].get_attribute('class').split(' '):
+                tmp_arry = [home_team_point, "<", tds[1].get_attribute('textContent'), "", away_team_point ]
+            elif "win" in tds[2].get_attribute('class').split(' '):
+                tmp_arry = [home_team_point, "", tds[1].get_attribute('textContent'), ">", away_team_point ]
             else:
-                cell_data = each_cell_data.get_attribute('textContent')
-            one_row_data.append(cell_data)
-        return one_row_data
+                tmp_arry = [home_team_point, "", tds[1].get_attribute('textContent'), "", away_team_point ]
 
-    def __write_tfoot_contents(self, tfoot, tbodies_row_count, thead_row):
-        trs = tfoot.find_elements_by_tag_name('tr')
+            update_cell_arry.append(tmp_arry)
+        cells1d_arry = self.__cellsTo1DArry(update_cell_arry)
 
-        # 各tableのtr要素の子要素であるtdの１行を配列に収める
-        # 結果としてtable要素の全ての列が行ごとにまとまって配列となる
-        for idx, tr in enumerate(trs):
-            tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
-            none_empty_cells = []
+        for (cell, arry_val) in zip(cell_list, cells1d_arry):
+            cell.value = arry_val
 
-            for cell in tbody_cell_list:
-                if not cell.value == '':
-                    none_empty_cells.append(cell)
-            
-            if len(none_empty_cells) > 0:
-                idx += 1
-                tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
+        self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
+    
+    def __get_table_footer_date(self):
+        # tfooterの上のテーブルに上書きしないように情報を取得
+        table = self.driver.find_elements_by_id("highlight_data")[0]
+        trs = table.find_elements_by_tag_name('tr')
+        trs_count = len(trs)
+        first_row = 10
+        written_range = f'B{first_row}'+ ":" + f'F{first_row + trs_count}'
 
+        table2 = self.driver.find_elements_by_id("highlight_data")[1]
+        trs2 = table2.find_elements_by_tag_name('tr')
+        trs2_count = len(trs2)
+        trs2_first_row = first_row + trs_count + 1
+
+        cell_list = self.ws.range(f'B{trs2_first_row}' + ":" + f'F{trs2_first_row + trs2_count}')
+        
+        update_cell_arry = []
+        for tr in trs2:
             tds = tr.find_elements_by_tag_name('td')
-            td_rows_data = []
-            one_row_data = self.__extract_tbody_one_row(tds, tfoot=True)
-            td_rows_data.append(one_row_data)
-            # １行ごとにgoole sheetのvlaueを更新していく処理
-            for i, cell in enumerate(tbody_cell_list):
-                cell.value = one_row_data[i]
-            self.ws.update_cells(tbody_cell_list, value_input_option='USER_ENTERED')
+            tmp_arry = ["", tds[0].get_attribute('textContent'), "", tds[1].get_attribute('textContent'), ""]
+            update_cell_arry.append(tmp_arry)
+        cells1d_arry = self.__cellsTo1DArry(update_cell_arry)
 
-    def line_count_checker_for_insurance(self, tbody_cell_list, thead_row, tbodies_row_count, idx):
-        # 結果と選手の行が重なってしまう場合を考慮
-        none_empty_cells = []
-        for cell in tbody_cell_list:
-            if not cell.value == '':
-                none_empty_cells.append(cell)
-        
-        if len(none_empty_cells) > 0:
-            idx += 1
-            tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
-            self.line_count_checker_for_insurance(tbody_cell_list, thead_row, tbodies_row_count, idx)
-        else:
-            return tbody_cell_list
-        
-        
+        for (cell, arry_val) in zip(cell_list, cells1d_arry):
+            cell.value = arry_val
+
+        self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
+        time.sleep(2)

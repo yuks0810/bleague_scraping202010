@@ -44,7 +44,7 @@ class BrowserControll:
             if i > 2:
                 break
 
-    def create_report_href_arry(self):
+    def create_box_score_href_arry(self):
         href_arry = []
 
         # B1が選択されていたら何もしない。B2が選択されている時のみB2タグをクリックする
