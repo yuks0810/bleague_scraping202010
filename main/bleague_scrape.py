@@ -149,7 +149,7 @@ print('updating chrome driver end')
 league, season, event, club, setuFrom = set_params(inputs)
 
 # Webページへアクセス
-driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))
+driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year={season.split('-')[0]}&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom, season=season))
 driver.implicitly_wait(15)
 # print('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))
 # time.sleep(3)
