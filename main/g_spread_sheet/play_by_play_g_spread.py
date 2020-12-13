@@ -199,3 +199,15 @@ class PlayByPLayGSpread:
         Q4_visible_len_count, Q4_visible_lis = self.__visible_li_count(Q4_ul)
 
         return Q1_visible_len_count, Q1_visible_lis, Q2_visible_len_count, Q2_visible_lis, Q3_visible_len_count, Q3_visible_lis, Q4_visible_len_count, Q4_visible_lis,
+
+    def __cellsto2darray(self, cells, col):  # colは列の数
+        cells2d = []
+        for i in range(len(cells) // col):
+            cells2d.append(cells[i * col:(i + 1) * col])
+        return cells2d
+
+    def __cellsto1darray(self, cells2d):
+        cells1d = []
+        for cells in cells2d:
+            cells1d.extend(cells)
+        return cells1d

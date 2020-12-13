@@ -13,7 +13,7 @@ class BoxScoreGSpread:
 
         if delete == False:
             self.ws = self.__connect_gspread(self.jsonf, self.spread_sheet_key)
-        
+
             # カラムの数が40個なければ作成する
             col_num = self.ws.col_count
             self.ws.add_cols(40 - col_num)
@@ -37,7 +37,7 @@ class BoxScoreGSpread:
 
         cell_list = self.ws.range('A3:C3')
         m_w_t = [
-            month.get_attribute("textContent"), 
+            month.get_attribute("textContent"),
             week.get_attribute("textContent"),
             time.get_attribute("textContent")
             ]
@@ -47,33 +47,58 @@ class BoxScoreGSpread:
             cell.value = val
 
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-    
+
     def write_table(self):
-        theads = self.driver.find_elements_by_tag_name('thead')
-        tbodies = self.driver.find_elements_by_tag_name('tbody')
-        tfoots = self.driver.find_elements_by_tag_name('tfoot')
+        upper_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table') # 1つ目のテーブル
+        lower_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[2]/table') # 2つ目のテーブル
+        tables = []
+        tables.append(upper_table)
+        tables.append(lower_table)
 
-        # tbodiesだけ余計なtableがあるのでBOX SCOREのみを抽出するために削除
-        del tbodies[0:3]
+        first_row = 6
+        first_col = 1
 
-        for idx, thead in enumerate(theads):
-            if idx == 0:
-                cell_list = self.ws.range(6, 1, 6, 27)
-                thead_row = 6
-            else:
-                cell_list = self.ws.range(idx * 24, 1, idx * 24, 27)
-                thead_row = idx * 24
+        for idx, table in enumerate(tables):
+            thead = table.find_element_by_tag_name('thead')
+            thead_tr = thead.find_element_by_tag_name('tr') # 1つ目のヘッダーの要素
+            tbodies = table.find_element_by_tag_name('tbody')
+            tbodies_trs = tbodies.find_elements_by_tag_name('tr')
+            tfoots = table.find_element_by_tag_name('tfoot')
+            tfoots_trs = tfoots.find_elements_by_tag_name('tr')
 
-            ths = thead.find_element_by_tag_name('tr').find_elements_by_tag_name('th')
-            for i, cell in enumerate(cell_list):
-                val = ths[i].get_attribute("textContent")
-                cell.value = val
-                
-            self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-            self.__write_tbody_contents(tbodies[idx], thead_row)
-            time.sleep(2)
-            self.__write_tfoot_contents(tfoots[idx], len(tbodies) , thead_row)
-            time.sleep(10)
+            all_table_data =[]
+            all_table_data.append(thead_tr)
+            for i in tbodies_trs:
+                all_table_data.append(i)
+            for i in tfoots_trs:
+                all_table_data.append(i)
+
+            col_num = len(thead_tr.find_elements_by_tag_name('th')) # カラム数
+            row_num = 1 + len(tbodies_trs) + len(tfoots_trs) # 行数
+            last_row = first_row + row_num
+            # gspread sheetのrangeを取得
+            cell_list = self.ws.range(first_row, first_col, last_row, col_num)
+
+            # 扱いやすいようにspread sheetのcellsを２次元配列にする
+            cells2darray = self.__cellsto2darray(cell_list, col_num)
+
+            # テーブルのデータをセルに入れている
+            idx = 1
+            for table_data, cells in zip(all_table_data, cells2darray):
+                if idx == 1:
+                    dbl_data = table_data.find_elements_by_tag_name('th')
+                else:
+                    dbl_data = table_data.find_elements_by_tag_name('td')
+                idx += 1
+                for table_datum, cell in zip(dbl_data, cells):
+                    cell.value = table_datum.get_attribute("textContent")
+
+            # 2次元配列のままだと書き込めないので、1次元配列に戻す
+            cell_list = self.__cellsto1darray(cells2darray)
+
+            # 値をgspread sheetに書き込む
+            self.ws.update_cells(cell_list)
+            first_row += row_num + 4
 
     def delete_all_sheets(self, workbook):
         idx = 0
@@ -133,7 +158,7 @@ class BoxScoreGSpread:
             td_rows_data = []
             one_row_data = self.__extract_tbody_one_row(tds)
             td_rows_data.append(one_row_data)
-            
+
             # １行ごとにgoole sheetのvlaueを更新していく処理
             for i, cell in enumerate(tbody_cell_list):
                 cell.value = one_row_data[i]
@@ -151,7 +176,7 @@ class BoxScoreGSpread:
             return one_row_data
 
         if '・' in tds[2].get_attribute('textContent'):
-            # 外人選手の場合    
+            # 外人選手の場合
             # 海外選手のファミリーネームが2重になっているので削除
             name_data = tds[2].get_attribute('textContent')
             delete_word_count = len(name_data.split('・')[1])/2
@@ -184,7 +209,7 @@ class BoxScoreGSpread:
             for cell in tbody_cell_list:
                 if not cell.value == '':
                     none_empty_cells.append(cell)
-            
+
             if len(none_empty_cells) > 0:
                 idx += 1
                 tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
@@ -204,12 +229,22 @@ class BoxScoreGSpread:
         for cell in tbody_cell_list:
             if not cell.value == '':
                 none_empty_cells.append(cell)
-        
+
         if len(none_empty_cells) > 0:
             idx += 1
             tbody_cell_list = self.ws.range(thead_row + tbodies_row_count + idx + 1, 1, thead_row + tbodies_row_count + idx + 1, 27)
             self.line_count_checker_for_insurance(tbody_cell_list, thead_row, tbodies_row_count, idx)
         else:
             return tbody_cell_list
-        
-        
+
+    def __cellsto2darray(self, cells, col):  # colは列の数
+        cells2d = []
+        for i in range(len(cells) // col):
+            cells2d.append(cells[i * col:(i + 1) * col])
+        return cells2d
+
+    def __cellsto1darray(self, cells2d):
+        cells1d = []
+        for cells in cells2d:
+            cells1d.extend(cells)
+        return cells1d
