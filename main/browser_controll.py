@@ -28,7 +28,7 @@ class BrowserControll:
 
     def select_report(self, date=datetime.datetime.now()):
         # レポートタグをクリックしてスクレイピングしたい対象のでテーブルをタブで開く
-        a_tags = self.driver.find_elements_by_xpath('//a[@rel="noopener" and @class="btn btn-rd"]') 
+        a_tags = self.driver.find_elements_by_xpath('//a[@rel="noopener" and @class="btn btn-rd"]')
         href_arry = []
 
         for a_tag in a_tags:

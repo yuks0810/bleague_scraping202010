@@ -11,7 +11,7 @@ class GameReportGSpread:
 
         if delete == False:
             self.ws = self.__connect_gspread(self.jsonf, self.spread_sheet_key)
-        
+
             # カラムの数が40個なければ作成する
             col_num = self.ws.col_count
             self.ws.add_cols(40 - col_num)
@@ -35,7 +35,7 @@ class GameReportGSpread:
 
         cell_list = self.ws.range('A3:C3')
         m_w_t = [
-            month.get_attribute("textContent"), 
+            month.get_attribute("textContent"),
             week.get_attribute("textContent"),
             time.get_attribute("textContent")
             ]
@@ -63,7 +63,7 @@ class GameReportGSpread:
         SPREADSHEET_KEY = self.spread_sheet_key
         workbook = gc.open_by_key(SPREADSHEET_KEY)
         return workbook
-    
+
     def write_table(self):
         self.__write_team_names_on_top_of_table()
         self.__get_table_data()
@@ -140,7 +140,7 @@ class GameReportGSpread:
             cell.value = arry_val
 
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
-    
+
     def __get_table_footer_date(self):
         # tfooterの上のテーブルに上書きしないように情報を取得
         table = self.driver.find_elements_by_id("highlight_data")[0]
@@ -155,7 +155,7 @@ class GameReportGSpread:
         trs2_first_row = first_row + trs_count + 1
 
         cell_list = self.ws.range(f'B{trs2_first_row}' + ":" + f'F{trs2_first_row + trs2_count}')
-        
+
         update_cell_arry = []
         for tr in trs2:
             tds = tr.find_elements_by_tag_name('td')

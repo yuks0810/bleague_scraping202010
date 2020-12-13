@@ -11,7 +11,7 @@ class PlayByPLayGSpread:
 
         if delete == False:
             self.ws = self.__connect_gspread(self.jsonf, self.spread_sheet_key)
-        
+
             # カラムの数が40個なければ作成する
             col_num = self.ws.col_count
             self.ws.add_cols(40 - col_num)
@@ -35,7 +35,7 @@ class PlayByPLayGSpread:
 
         cell_list = self.ws.range('A3:C3')
         m_w_t = [
-            month.get_attribute("textContent"), 
+            month.get_attribute("textContent"),
             week.get_attribute("textContent"),
             time.get_attribute("textContent")
             ]
@@ -63,7 +63,7 @@ class PlayByPLayGSpread:
         SPREADSHEET_KEY = self.spread_sheet_key
         workbook = gc.open_by_key(SPREADSHEET_KEY)
         return workbook
-    
+
     def write_table(self):
         self.__get_play_by_play_data("1Q")
         time.sleep(2)
@@ -167,7 +167,7 @@ class PlayByPLayGSpread:
             one_row = home_arry + middle_arry + away_arry
             update_cell_arry.append(one_row)
 
-        # 配列を1次元にする    
+        # 配列を1次元にする
         cells1d_arry = self.__cellsTo1DArry(update_cell_arry)
 
         for (cell, arry_val) in zip(cell_list, cells1d_arry):
@@ -187,7 +187,7 @@ class PlayByPLayGSpread:
 
         visible_len_count = len(visible_lis)
         return visible_len_count, visible_lis
-        
+
     def __get_each_qater_len(self):
         Q1_ul = self.driver.find_element_by_xpath('//*[@id="game__playbyplay__inner"]/ul[3]/li[4]/ul')
         Q1_visible_len_count, Q1_visible_lis = self.__visible_li_count(Q1_ul)
@@ -199,5 +199,3 @@ class PlayByPLayGSpread:
         Q4_visible_len_count, Q4_visible_lis = self.__visible_li_count(Q4_ul)
 
         return Q1_visible_len_count, Q1_visible_lis, Q2_visible_len_count, Q2_visible_lis, Q3_visible_len_count, Q3_visible_lis, Q4_visible_len_count, Q4_visible_lis,
-
-

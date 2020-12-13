@@ -36,7 +36,7 @@ def get_box_score():
         driver.execute_script("window.open()") # make a new tab
         driver.switch_to.window(driver.window_handles[i+1]) #switch new tab
         driver.get(url)
-        
+
         box_score = BoxScoreGSpread(driver)
         box_score.get_game_teams()
         box_score.get_year()
@@ -49,7 +49,7 @@ def get_game_report():
 
     href_arry, href_count = brows.create_box_score_href_arry()
 
-    for i, url in enumerate(href_arry):        
+    for i, url in enumerate(href_arry):
         driver.execute_script("window.open()") # make a new tab
         driver.switch_to.window(driver.window_handles[i+1]) #switch new tab
         driver.get(url)
@@ -68,7 +68,7 @@ def get_play_by_play():
 
     href_arry, href_count = brows.create_box_score_href_arry()
 
-    for i, url in enumerate(href_arry):        
+    for i, url in enumerate(href_arry):
         driver.execute_script("window.open()") # make a new tab
         driver.switch_to.window(driver.window_handles[i+1]) #switch new tab
         driver.get(url)
@@ -138,7 +138,7 @@ input_to_chose_type = input().split((','))
 
 print('updating chrome driver start')
 option = Options()                          # オプションを用意
-option.add_argument('--headless')           # ヘッドレスモードの設定を付与 
+option.add_argument('--headless')           # ヘッドレスモードの設定を付与
 
 # ヘッドレスで実行するとき
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
@@ -149,7 +149,7 @@ print('updating chrome driver end')
 league, season, event, club, setuFrom = set_params(inputs)
 
 # Webページへアクセス
-driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year={season.split('-')[0]}&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom, season=season))
+driver.get('https://www.bleague.jp/schedule/?s=1&tab={tab}&year={season}&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom, season=season.split('-')[0]))
 driver.implicitly_wait(15)
 # print('https://www.bleague.jp/schedule/?s=1&tab={tab}&year=2018&event={event}&club=&setuFrom={setuFrom}'.format(tab=league, year=league, event=event, setuFrom=setuFrom))
 # time.sleep(3)
