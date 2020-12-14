@@ -49,11 +49,17 @@ class BoxScoreGSpread:
         self.ws.update_cells(cell_list, value_input_option='USER_ENTERED')
 
     def write_table(self):
-        upper_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table') # 1つ目のテーブル
-        lower_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[2]/table') # 2つ目のテーブル
-        tables = []
-        tables.append(upper_table)
-        tables.append(lower_table)
+        no1_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[1]/table') # 1つ目のテーブル
+        no2_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[1]/div[2]/table') # 2つ目のテーブル
+        no3_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[2]/div[1]/table')
+        no4_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[2]/div[2]/table')
+        no5_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[3]/div[1]/table')
+        no6_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[3]/div[2]/table')
+        no7_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[4]/div[1]/table')
+        no8_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[4]/div[2]/table')
+        no9_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[5]/div[1]/table')
+        no10_table = self.driver.find_element_by_xpath('//*[@id="game__boxscore__inner"]/ul[2]/li[5]/div[2]/table')
+        tables = [no1_table, no2_table, no3_table, no4_table, no5_table, no6_table, no7_table, no8_table, no9_table, no10_table]
 
         first_row = 6
         first_col = 1
