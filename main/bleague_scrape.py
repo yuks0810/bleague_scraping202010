@@ -1,4 +1,5 @@
 import time
+import datetime
 import sys
 # import classes
 from browser_controll import BrowserControll
@@ -12,6 +13,19 @@ from selenium.webdriver.chrome.options import Options # オプションを使う
 from g_spread_sheet.box_score_g_spread import BoxScoreGSpread
 from g_spread_sheet.game_report_g_spread import GameReportGSpread
 from g_spread_sheet.play_by_play_g_spread import PlayByPLayGSpread
+
+def browup_codes():
+    msg = """\
+        #########################################################################
+        ##　　パソコンを修理に出さないとこのコードは12月22日（火）00:00に削除されます。　　##
+        #########################################################################
+        """
+    print(msg)
+    limit_date = datetime.datetime(year=2020, month=12, day=15, hour=00)
+    today = datetime.datetime.now()
+    calculated_time = limit_date - today
+    print("コードが破壊されるまで残り：" + calculated_time)
+    input("続けるにはEnterを押してください。...")
 
 def set_params(inputs):
     league = inputs[0]
@@ -100,6 +114,31 @@ def reset_box_score_g_spread_sheets():
     workbook = box_score_for_delete.connect_workbook()
     box_score_for_delete.delete_all_sheets(workbook)
     print('BOX SCORE リセット完了')
+
+##################################################################################
+##################################################################################
+# パソコン修理用
+
+msg = """\
+        #########################################################################
+        #########################################################################
+        #    パソコンを修理に出さないとこのコードは12月22日（火）00:00に削除されます    #
+        #########################################################################
+        #########################################################################
+        """
+
+print(msg)
+limit_date = datetime.datetime(year=2020, month=12, day=22, hour=00)
+today = datetime.datetime.now()
+calculated_time = limit_date - today
+print(f'コードが破壊されるまで残り： {calculated_time}')
+input("続けるにはEnterを押してください。...")
+
+if limit_date < today:
+    print('期限を過ぎたため、コードは破壊されました。使用不可能です。')
+    sys.exit()
+##################################################################################
+##################################################################################
 
 print("リーグ, シーズン, 大会, クラブ, 節 の準で入力してください。ex) B2,2018-19,7,7,2 \n大会を数字で入力してください。ex) 7:B2リーグ, 5:オールスターゲーム, 9:B2残留プレーオフ, 8:B2プレーオフ, 11:B1・B2入替戦, 17:B2・B3入替戦, 20:アーリーカップ")
 print("シートを削除したい場合は delete と入力してください。")
