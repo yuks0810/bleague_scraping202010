@@ -96,8 +96,28 @@ class BoxScoreGSpread:
                 else:
                     dbl_data = table_data.find_elements_by_tag_name('td')
                 idx += 1
+
+                idx_for_cell = 1
                 for table_datum, cell in zip(dbl_data, cells):
-                    cell.value = table_datum.get_attribute("textContent")
+                    if idx > 2 and idx_for_cell == 3 and idx < row_num:
+                        if '・' in table_datum.get_attribute('textContent'):
+                            # 外人選手の場合
+                            # 海外選手のファミリーネームが2重になっているので削除
+                            name_data = table_datum.get_attribute('textContent')
+                            delete_word_count = len(name_data.split('・')[1])/2
+                            last_word = len(name_data) - delete_word_count
+                            name = name_data[0:int(last_word)]
+                        else:
+                            # 日本人選手の場合
+                            name_data = table_datum.get_attribute('textContent')
+                            delete_word_count = len(name_data.split(' ')[0])
+                            last_word = len(name_data) - delete_word_count
+                            name = name_data[0:int(last_word)]
+                        cell.value = name
+                    else:
+                        cell.value = table_datum.get_attribute("textContent")
+
+                    idx_for_cell += 1
 
             # 2次元配列のままだと書き込めないので、1次元配列に戻す
             cell_list = self.__cellsto1darray(cells2darray)
